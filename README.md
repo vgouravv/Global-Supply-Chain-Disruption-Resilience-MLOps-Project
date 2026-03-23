@@ -25,12 +25,15 @@ This project provides:
 
 ## 🏗️ Project Stack
 
-- **ML Framework**: scikit-learn (Random Forest)
-- **Data Pipeline**: DVC (Data Version Control)
-- **API**: FastAPI + Uvicorn
-- **Requirements**: Python 3.11+
-- **Data Source**: Kaggle datasets (via kagglehub)
-- **Serialization**: Joblib (columns), Pickle (trained model)
+- **Language & Runtime**: Python 3.11+
+- **ML & Data**: scikit-learn, pandas, numpy, joblib, pickle
+- **API Serving**: FastAPI + Uvicorn
+- **Experiment Tracking**: MLflow (tracking server + model registry)
+- **Pipeline Orchestration**: DVC (`dvc.yaml`, `dvc.lock`)
+- **Containerization**: Docker + Docker Compose
+- **Kubernetes**: Minikube, kubectl, Kustomize manifests (`k8s/`)
+- **Automation**: Makefile + shell scripts (`scripts/minikube-redeploy.sh`, `scripts/minikube-cleanup.sh`)
+- **Docs & Tooling**: Sphinx, flake8, coverage
 
 ---
 
@@ -64,7 +67,7 @@ cp /path/to/your/data.csv data/external/
 ### 3. Run Pipeline
 
 ```bash
-python -m dvc repro
+dvc repro
 ```
 
 This executes all stages in sequence:
@@ -236,6 +239,21 @@ Edit `params.yaml` to customize:
 ## 📦 Project Structure
 
 ```
+├── Dockerfile                      ← API/training image definition
+├── docker-compose.yml              ← Local multi-service orchestration
+├── dvc.yaml                        ← DVC pipeline definition
+├── dvc.lock                        ← Reproducibility lock file
+├── params.yaml                     ← Model and promotion configuration
+├── pyproject.toml                  ← Project metadata and Python constraints
+├── requirements.txt                ← Python dependencies
+├── main.py                         ← FastAPI application entrypoint
+├── Makefile                        ← Developer automation commands
+├── k8s/
+│   ├── kubernetes.yaml             ← K8s namespace, PVC, deployments, services, job
+│   └── kustomization.yaml          ← Kustomize entrypoint
+├── scripts/
+│   ├── minikube-redeploy.sh        ← One-command rebuild + redeploy
+│   └── minikube-cleanup.sh         ← One-command teardown
 ├── data/
 │   ├── external/          ← Raw input CSVs (add your dataset here)
 │   ├── raw/               ← Split train/test (auto-generated)
@@ -254,13 +272,14 @@ Edit `params.yaml` to customize:
 │   │   └── predict_model.py      ← Evaluation
 │   └── visualization/
 │       └── visualize.py           ← (Future) reporting
+├── notebooks/                      ← Analysis notebooks
+├── docs/                           ← Sphinx documentation source
 ├── reports/
-│   └── metrics.json        ← Model evaluation metrics
-├── dvc.yaml                ← Pipeline definition
-├── dvc.lock                ← Reproducibility lock file
-├── params.yaml             ← Hyperparameters
-├── pyproject.toml          ← Python project metadata
-└── requirements.txt        ← Dependencies
+│   ├── metrics.json                ← Model evaluation metrics
+│   └── figures/                    ← Generated visual artifacts
+├── mlruns/                         ← MLflow local run tracking data
+├── mlartifacts/                    ← MLflow model/artifact store
+├── references/                     ← Reference material
 ```
 
 ---
