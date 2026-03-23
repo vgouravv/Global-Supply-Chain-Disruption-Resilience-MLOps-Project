@@ -1,4 +1,4 @@
-.PHONY: clean data lint requirements sync_data_to_s3 sync_data_from_s3
+.PHONY: clean data lint requirements sync_data_to_s3 sync_data_from_s3 minikube_redeploy minikube_cleanup
 
 #################################################################################
 # GLOBALS                                                                       #
@@ -53,6 +53,14 @@ ifeq (default,$(PROFILE))
 else
 	aws s3 sync s3://$(BUCKET)/data/ data/ --profile $(PROFILE)
 endif
+
+## Rebuild image and redeploy training/API on Minikube
+minikube_redeploy:
+	bash scripts/minikube-redeploy.sh
+
+## Tear down Minikube app resources and stop cluster
+minikube_cleanup:
+	bash scripts/minikube-cleanup.sh
 
 ## Set up python interpreter environment
 create_environment:

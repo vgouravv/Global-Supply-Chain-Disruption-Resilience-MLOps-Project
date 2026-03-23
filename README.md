@@ -40,7 +40,7 @@ This project provides:
 
 ```bash
 git clone <your-repo-url>
-cd GSC-Mitigation-Recommender
+cd Global-Supply-Chain-Disruption-Resilience-MLOps-Project
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1  # Windows
 source .venv/bin/activate     # macOS/Linux
@@ -94,7 +94,7 @@ Open `http://127.0.0.1:5000` to view experiments, runs, and model registry.
 uvicorn main:app --reload
 ```
 
-### 5. Deploy with Docker
+### 6. Deploy with Docker
 
 For full pipeline execution, place your dataset in `data/external/` before building.
 
@@ -118,6 +118,87 @@ docker build -t gsc-api .
 docker run -p 8000:8000 gsc-api
 ```
 
+### 7. Deploy with Kubernetes
+
+This repo includes Kubernetes manifests in `k8s/` for:
+- MLflow server
+- One-time training job
+- FastAPI deployment
+- Shared persistent volume for MLflow and model artifacts
+
+Build the image used by training and API:
+
+```bash
+docker build -t gsc-mlops:latest .
+```
+
+Apply all Kubernetes resources:
+
+```bash
+kubectl apply -k k8s/
+```
+
+One-command rebuild + redeploy on Minikube:
+
+```bash
+./scripts/minikube-redeploy.sh
+```
+
+Alternative via Makefile:
+
+```bash
+make minikube_redeploy
+```
+
+One-command teardown (delete namespace + stop Minikube):
+
+```bash
+./scripts/minikube-cleanup.sh
+```
+
+Alternative via Makefile:
+
+```bash
+make minikube_cleanup
+```
+
+Optional flags:
+
+```bash
+# Keep namespace resources, only stop cluster
+DELETE_NAMESPACE=false ./scripts/minikube-cleanup.sh
+
+# Delete namespace but keep cluster running
+STOP_CLUSTER=false ./scripts/minikube-cleanup.sh
+```
+
+Run training (creates model files in shared storage):
+
+```bash
+kubectl -n mlops delete job training --ignore-not-found
+kubectl apply -k k8s/
+kubectl -n mlops logs -f job/training
+```
+
+Deploy API after training data is available:
+
+```bash
+kubectl -n mlops rollout status deployment/api
+kubectl -n mlops get pods,svc
+```
+
+Access services:
+
+- API: `http://<node-ip>:30080`
+- MLflow: `http://<node-ip>:30500`
+
+For local clusters (kind/minikube/docker desktop), you can also port-forward:
+
+```bash
+kubectl -n mlops port-forward svc/api 8000:8000
+kubectl -n mlops port-forward svc/mlflow 5000:5000
+```
+
 ---
 
 ## 🔧 Configuration
@@ -138,8 +219,6 @@ Edit `params.yaml` to customize:
 - **Stage Transitions**: Configurable promotion to Staging/Production
 - **Rollback Logic**: If `test_f1_score` drops > `max_test_f1_drop`, rollback to previous Production version
 - **Data Versioning**: Tracks data hash and Git commit in runs
-
----
 
 ---
 
@@ -191,14 +270,16 @@ Edit `params.yaml` to customize:
 ```bash
 # 1. Setup
 python -m venv .venv
-.\.venv\Scripts\Activate.ps1
+# Activate environment
+# Windows (PowerShell): .\.venv\Scripts\Activate.ps1
+# macOS/Linux: source .venv/bin/activate
 pip install -r requirements.txt
 
 # 2. Add your data
-copy C:\path\to\supply_chain_data.csv data/external/
+cp /path/to/supply_chain_data.csv data/external/
 
 # 3. Run pipeline
-python -m dvc repro
+dvc repro
 
 # 4. Check results
 cat reports/metrics.json
@@ -222,21 +303,6 @@ ls models/
 ### Model Artifacts
 - `models/model.pkl` — Ready-to-deploy classifier
 - `models/columns.pkl` — Feature column order for inference
-
----
-
-## 🔧 Configuration
-
-Edit `params.yaml` to tune:
-```yaml
-data_collection:
-  test_size: 0.2              # Train/test split ratio
-
-model_building:
-  n_estimators: 100           # Random Forest trees
-```
-
-Then re-run: `dvc repro`
 
 ---
 
@@ -279,10 +345,12 @@ Then re-run: `dvc repro`
 
 ---
 
+> Citation: Gourav Sahu (2026). *Global Supply Chain Mitigation Recommender*.
+
+---
+
 ## 📄 License
 
 See LICENSE file
 
 ---
-
-**Questions?** Open an issue or check [DVC docs](https://dvc.org/doc) for pipeline help.
