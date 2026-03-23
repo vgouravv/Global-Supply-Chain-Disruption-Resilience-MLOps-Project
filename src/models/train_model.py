@@ -8,9 +8,6 @@ from ruamel.yaml import YAML
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 from mlflow.tracking import MlflowClient
-import mlflow.sklearn
-
-# Ensure project root is on sys.path for script and dvc execution.
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
@@ -84,7 +81,6 @@ def main():
     n_estimators = int(n_estimators)
     print(f"Using n_estimators from params.yaml: {n_estimators}")
 
-    # Data versioning: add hash and (optional) git commit
     data_hash = compute_file_hash(processed_data_path)
     git_commit = None
     try:
@@ -101,12 +97,10 @@ def main():
 
         model = train_model(X_train, y_train, n_estimators)
 
-        # training set score (if no validation set in this script)
         y_pred_train = model.predict(X_train)
         train_accuracy = accuracy_score(y_train, y_pred_train)
         mlflow.log_metric("train_accuracy", float(train_accuracy))
 
-        # optionally evaluate on test set (external) and log metrics
         test_data_path = os.path.join(project_root, "data", "processed", "test_processed.csv")
         if os.path.exists(test_data_path):
             test_data = pd.read_csv(test_data_path)
@@ -117,10 +111,8 @@ def main():
                 for k, v in test_metrics.items():
                     mlflow.log_metric(f"test_{k}", float(v))
 
-        # save model artifact
         mlflow.sklearn.log_model(model, "random_forest_model")
 
-        # register model in MLflow Model Registry
         run_id = mlflow.active_run().info.run_id
         model_uri = f"runs:/{run_id}/random_forest_model"
         model_name = params.get("model_name", "SupplyChainRandomForest")
@@ -129,7 +121,6 @@ def main():
             registration = mlflow.register_model(model_uri, model_name)
             print(f"Model registered as {model_name} from {model_uri}")
 
-            # transition model version stage
             target_stage = params.get("model_stage", "Staging")
             client = MlflowClient()
             model_version = registration.version
@@ -141,7 +132,6 @@ def main():
             )
             print(f"Model version {model_version} transitioned to stage {target_stage}")
 
-            # optional automated promotion to Production (after Staging is set)
             if params.get("promote_to_production", False):
                 client.transition_model_version_stage(
                     name=model_name,
@@ -151,7 +141,6 @@ def main():
                 )
                 print(f"Model version {model_version} transitioned to Production")
 
-            # check test f1 drop vs existing production version
             test_f1 = None
             if "test_metrics" in locals() and "f1_score" in test_metrics:
                 test_f1 = float(test_metrics["f1_score"])
@@ -166,7 +155,6 @@ def main():
                         prod_test_f1 = float(prod_test_f1)
                         print(f"Production test_f1={prod_test_f1} vs current test_f1={test_f1}")
                         if test_f1 < prod_test_f1 - max_drop:
-                            # rollback: keep production version, archive candidate
                             client.transition_model_version_stage(
                                 name=model_name,
                                 version=model_version,

@@ -36,7 +36,7 @@ class OriginCity(str, Enum):
     shanghai_cn = "Shanghai, CN"
     tokyo_jp = "Tokyo, JP"
     hamburg_de = "Hamburg, DE"
-    santos_br = "Santos, BR"  # Assuming present in data
+    santos_br = "Santos, BR"
 
 class DestinationCity(str, Enum):
     los_angeles_us = "Los Angeles, US"

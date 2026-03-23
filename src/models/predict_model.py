@@ -6,7 +6,6 @@ import pandas as pd
 import pickle
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
-# Ensure project root is on sys.path for script and dvc execution.
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
@@ -70,11 +69,9 @@ def main():
     metrics = evaluate_model(model, X_test, y_test)
     save_metrics(metrics, metrics_path)
 
-    # Log evaluation metrics to MLflow
     with mlflow.start_run():
         for metric_name, metric_value in metrics.items():
             mlflow.log_metric(metric_name, float(metric_value))
-        # Optionally log the evaluation report artifact
         mlflow.log_artifact(metrics_path)
 
     print(f"Saved evaluation metrics to {metrics_path} and MLflow run.")
