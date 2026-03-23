@@ -9,6 +9,7 @@ dependencies = [
     "dvc>=3.67.0",
     "fastapi>=0.135.1",
     "kagglehub[pandas-datasets]>=1.0.0",
+    "mlflow>=3.10.1",
     "pydantic>=2.12.5",
     "scikit-learn>=1.8.0",
     "uvicorn>=0.42.0",

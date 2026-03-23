@@ -1,0 +1,66 @@
+artifact_path: mlflow-artifacts:/1/models/m-430a6aef5cd64cbfa8e109a2a6a802b0/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.11.0
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.8.0
+    skops_trusted_types: null
+is_signature_from_type_hint: false
+mlflow_version: 3.10.1
+model_id: m-430a6aef5cd64cbfa8e109a2a6a802b0
+model_size_bytes: 1180075
+model_uuid: m-430a6aef5cd64cbfa8e109a2a6a802b0
+prompts: null
+run_id: a75e22a9e38140ee9168a430a1fa9e43
+signature:
+  inputs: '[{"type": "long", "name": "Base_Lead_Time_Days", "required": true}, {"type":
+    "long", "name": "Scheduled_Lead_Time_Days", "required": true}, {"type": "long",
+    "name": "Actual_Lead_Time_Days", "required": true}, {"type": "long", "name": "Delay_Days",
+    "required": true}, {"type": "double", "name": "Geopolitical_Risk_Index", "required":
+    true}, {"type": "double", "name": "Weather_Severity_Index", "required": true},
+    {"type": "double", "name": "Inflation_Rate_Pct", "required": true}, {"type": "double",
+    "name": "Shipping_Cost_USD", "required": true}, {"type": "long", "name": "Order_Weight_Kg",
+    "required": true}, {"type": "boolean", "name": "Route_Type_Atlantic", "required":
+    true}, {"type": "boolean", "name": "Route_Type_Commodity", "required": true},
+    {"type": "boolean", "name": "Route_Type_Intra-Asia", "required": true}, {"type":
+    "boolean", "name": "Route_Type_Pacific", "required": true}, {"type": "boolean",
+    "name": "Route_Type_Suez", "required": true}, {"type": "boolean", "name": "Destination_City_Felixstowe,
+    UK", "required": true}, {"type": "boolean", "name": "Destination_City_Los Angeles,
+    US", "required": true}, {"type": "boolean", "name": "Destination_City_New York,
+    US", "required": true}, {"type": "boolean", "name": "Destination_City_Rotterdam,
+    NL", "required": true}, {"type": "boolean", "name": "Destination_City_Shanghai,
+    CN", "required": true}, {"type": "boolean", "name": "Destination_City_Singapore,
+    SG", "required": true}, {"type": "boolean", "name": "Origin_City_Hamburg, DE",
+    "required": true}, {"type": "boolean", "name": "Origin_City_Mumbai, IN", "required":
+    true}, {"type": "boolean", "name": "Origin_City_Santos, BR", "required": true},
+    {"type": "boolean", "name": "Origin_City_Shanghai, CN", "required": true}, {"type":
+    "boolean", "name": "Origin_City_Shenzhen, CN", "required": true}, {"type": "boolean",
+    "name": "Origin_City_Tokyo, JP", "required": true}, {"type": "boolean", "name":
+    "Delivery_Status_Late", "required": true}, {"type": "boolean", "name": "Delivery_Status_On
+    Time", "required": true}, {"type": "boolean", "name": "Transportation_Mode_Air",
+    "required": true}, {"type": "boolean", "name": "Transportation_Mode_Sea", "required":
+    true}, {"type": "boolean", "name": "Product_Category_Auto Parts", "required":
+    true}, {"type": "boolean", "name": "Product_Category_Consumer Electronics", "required":
+    true}, {"type": "boolean", "name": "Product_Category_Perishable Foods", "required":
+    true}, {"type": "boolean", "name": "Product_Category_Pharmaceuticals", "required":
+    true}, {"type": "boolean", "name": "Product_Category_Raw Materials", "required":
+    true}, {"type": "boolean", "name": "Product_Category_Semiconductors", "required":
+    true}, {"type": "boolean", "name": "Product_Category_Textiles", "required": true},
+    {"type": "boolean", "name": "Disruption_Event_Geopolitical Conflict (Route Diversion)",
+    "required": true}, {"type": "boolean", "name": "Disruption_Event_No Disruption",
+    "required": true}, {"type": "boolean", "name": "Disruption_Event_Port Congestion",
+    "required": true}, {"type": "boolean", "name": "Disruption_Event_Severe Weather
+    (Typhoon/Storm)", "required": true}]'
+  outputs: '[{"type": "tensor", "tensor-spec": {"dtype": "object", "shape": [-1]}}]'
+  params: null
+type_hint_from_example: false
+utc_time_created: '2026-03-23 11:31:06.535975'

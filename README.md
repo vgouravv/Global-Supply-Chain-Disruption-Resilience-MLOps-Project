@@ -80,20 +80,44 @@ Outputs:
 - `models/columns.pkl` (feature column order)
 - `reports/metrics.json` (evaluation metrics: accuracy, precision, recall, F1)
 
-### 4. (Optional) Deploy API
+### 4. Start MLflow Tracking Server
 
 ```bash
-python -m uvicorn src.api:app --reload
+mlflow ui --backend-store-uri sqlite:///mlflow.db --port 5000
 ```
 
-Then POST to `/predict`:
-```json
-{
-  "route_type": "Sea",
-  "destination_city": "Shanghai",
-  ...
-}
+Open `http://127.0.0.1:5000` to view experiments, runs, and model registry.
+
+### 5. Deploy API
+
+```bash
+uvicorn main:app --reload
 ```
+
+Then POST to `http://127.0.0.1:8000/predict` with JSON payload matching `SupplyChainInput` schema.
+
+---
+
+## 🔧 Configuration
+
+Edit `params.yaml` to customize:
+
+- `n_estimators`: Number of trees in Random Forest
+- `model_name`: Name in MLflow Model Registry
+- `model_stage`: Initial stage (Staging/Production)
+- `promote_to_production`: Auto-promote to Production
+- `max_test_f1_drop`: Threshold for rollback (e.g., 0.02)
+
+---
+
+## 📊 MLflow Model Registry
+
+- **Automatic Registration**: Models are registered after training
+- **Stage Transitions**: Configurable promotion to Staging/Production
+- **Rollback Logic**: If `test_f1_score` drops > `max_test_f1_drop`, rollback to previous Production version
+- **Data Versioning**: Tracks data hash and Git commit in runs
+
+---
 
 ---
 

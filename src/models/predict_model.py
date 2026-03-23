@@ -1,9 +1,18 @@
 import json
 import os
-
+import sys
+from mlflow import mlflow
 import pandas as pd
 import pickle
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+
+# Ensure project root is on sys.path for script and dvc execution.
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
+mlflow.set_tracking_uri("http://localhost:5000")
+mlflow.set_experiment("Supply Chain Disruption Mitigation Model Evaluation")
 
 
 def load_test_data(file_path: str) -> pd.DataFrame:
@@ -43,9 +52,10 @@ def save_metrics(metrics: dict, output_path: str):
 
 
 def main():
-    test_data_path = r"data/processed/test_processed.csv"
-    model_path = os.path.join("models", "model.pkl")
-    reports_dir = "reports"
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+    test_data_path = os.path.join(project_root, "data", "processed", "test_processed.csv")
+    model_path = os.path.join(project_root, "models", "model.pkl")
+    reports_dir = os.path.join(project_root, "reports")
     os.makedirs(reports_dir, exist_ok=True)
     metrics_path = os.path.join(reports_dir, "metrics.json")
 
@@ -59,6 +69,15 @@ def main():
     model = load_model(model_path)
     metrics = evaluate_model(model, X_test, y_test)
     save_metrics(metrics, metrics_path)
+
+    # Log evaluation metrics to MLflow
+    with mlflow.start_run():
+        for metric_name, metric_value in metrics.items():
+            mlflow.log_metric(metric_name, float(metric_value))
+        # Optionally log the evaluation report artifact
+        mlflow.log_artifact(metrics_path)
+
+    print(f"Saved evaluation metrics to {metrics_path} and MLflow run.")
 
 
 if __name__ == "__main__":

@@ -3,4 +3,8 @@ data_collection:
 
 model_building:
   n_estimators: 100
+  model_name: SupplyChainRandomForest
+  model_stage: Staging
+  promote_to_production: false
+  max_test_f1_drop: 0.02
 
